@@ -1,0 +1,171 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YoloHelperApp.ViewModels"
+             xmlns:views="using:YoloHelperApp.Views"
+             xmlns:models="using:YoloHelperApp.Models"
+             x:Class="YoloHelperApp.Views.AnalyzeView"
+             x:DataType="vm:AnalyzeViewModel">
+  <Grid ColumnDefinitions="320,6,*" Margin="{DynamicResource PageMargin}">
+
+    <!-- ═══ LEFT: Runs List (Master) ═══ -->
+    <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="6">
+      <TextBlock Grid.Row="0" Text="Model Manager (Runs)" FontSize="16" FontWeight="Bold" Foreground="#1F8AD2" Margin="4,0,0,0"/>
+      <ListBox Grid.Row="1" ItemsSource="{Binding Runs}" SelectedItem="{Binding SelectedRun}"
+               BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="4,4"/>
+            <Setter Property="MinHeight" Value="32"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="models:TrainRun">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="0">
+              <CheckBox Grid.Column="0" IsChecked="{Binding IsSelectedForChart}" 
+                        Margin="0,0,4,0" MinHeight="16" VerticalAlignment="Center"/>
+              
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="0">
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="12"/>
+                <TextBlock Text="{Binding Created, StringFormat='{}{0:g}'}" FontSize="9" Foreground="Gray"/>
+              </StackPanel>
+
+              <!-- ONNX Count -->
+              <Border Grid.Column="2" IsVisible="{Binding HasOnnx}" Background="#DEF7EC" BorderBrush="#31C48D" BorderThickness="1" CornerRadius="4" Padding="4,2" Margin="2,0,2,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding OnnxCount, StringFormat='ONNX: {0}'}" FontSize="10" Foreground="#046C4E" FontWeight="SemiBold"/>
+              </Border>
+
+              <!-- Post Export Script Button -->
+              <Button Grid.Column="3" IsVisible="{Binding HasOnnx}" Command="{Binding RunPostExportScriptCommand}" Background="Transparent" Padding="4" ToolTip.Tip="Run Post-Export Actions" Margin="0,0,2,0" VerticalAlignment="Center">
+                <TextBlock Text="🚀" FontSize="14"/>
+              </Button>
+
+              <!-- Inline Rich Color Picker -->
+              <ColorPicker Grid.Column="4" Color="{Binding Color, Converter={StaticResource StringToColorConverter}, Mode=TwoWay}"
+                           VerticalAlignment="Center" Margin="2,0,0,0"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+
+    <!-- Splitter -->
+    <GridSplitter Grid.Column="1" Width="6" Background="#E4E7EB"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+    <!-- ═══ RIGHT: TabControl (Detail) ═══ -->
+    <TabControl Grid.Column="2" Margin="{DynamicResource SplitterMargin}" Padding="{DynamicResource DetailTabPadding}">
+      
+      <!-- TAB 1: Graphs -->
+      <TabItem Header="Training Graphs">
+        <Grid RowDefinitions="Auto,*,6,170" Margin="0">
+          <!-- ─── Metric Toggle Table (Aligned columns) ─── -->
+          <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"
+                  CornerRadius="6" Padding="8,8" Margin="0,0,0,6">
+            <Border.Styles>
+              <!-- Custom uniform styling for all metric ToggleButtons -->
+              <Style Selector="ToggleButton">
+                <Setter Property="Background" Value="#F1F5F9"/>
+                <Setter Property="Foreground" Value="#475569"/>
+                <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Margin" Value="0,0,4,0"/>
+                <Setter Property="Padding" Value="6,2"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+              </Style>
+              <Style Selector="ToggleButton:checked">
+                <Setter Property="Background" Value="#1F8AD2"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="#1F8AD2"/>
+              </Style>
+            </Border.Styles>
+            
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110,120,120,120,120,*" RowSpacing="6">
+              <!-- Row 0: Performance -->
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Performance" FontSize="11" FontWeight="Bold" Foreground="#2563EB" VerticalAlignment="Center"/>
+              <ToggleButton Grid.Row="0" Grid.Column="1" DataContext="{Binding PerformanceMetrics[0]}" IsChecked="{Binding IsEnabled}" Content="★ mAP50"/>
+              <ToggleButton Grid.Row="0" Grid.Column="2" DataContext="{Binding PerformanceMetrics[1]}" IsChecked="{Binding IsEnabled}" Content="★ mAP50-95"/>
+              <ToggleButton Grid.Row="0" Grid.Column="3" DataContext="{Binding PerformanceMetrics[2]}" IsChecked="{Binding IsEnabled}" Content="precision"/>
+              <ToggleButton Grid.Row="0" Grid.Column="4" DataContext="{Binding PerformanceMetrics[3]}" IsChecked="{Binding IsEnabled}" Content="recall"/>
+
+              <!-- Row 1: Val Loss -->
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Val Loss" FontSize="11" FontWeight="Bold" Foreground="#F97316" VerticalAlignment="Center"/>
+              <ToggleButton Grid.Row="1" Grid.Column="1" DataContext="{Binding ValLossMetrics[0]}" IsChecked="{Binding IsEnabled}" Content="★ box"/>
+              <ToggleButton Grid.Row="1" Grid.Column="2" DataContext="{Binding ValLossMetrics[1]}" IsChecked="{Binding IsEnabled}" Content="★ cls"/>
+              <ToggleButton Grid.Row="1" Grid.Column="3" DataContext="{Binding ValLossMetrics[2]}" IsChecked="{Binding IsEnabled}" Content="dfl"/>
+
+              <!-- Row 2: Train Loss -->
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Train Loss" FontSize="11" FontWeight="Bold" Foreground="#A78BFA" VerticalAlignment="Center"/>
+              <ToggleButton Grid.Row="2" Grid.Column="1" DataContext="{Binding TrainLossMetrics[0]}" IsChecked="{Binding IsEnabled}" Content="box"/>
+              <ToggleButton Grid.Row="2" Grid.Column="2" DataContext="{Binding TrainLossMetrics[1]}" IsChecked="{Binding IsEnabled}" Content="cls"/>
+              <ToggleButton Grid.Row="2" Grid.Column="3" DataContext="{Binding TrainLossMetrics[2]}" IsChecked="{Binding IsEnabled}" Content="dfl"/>
+
+              <!-- Row 3: LR -->
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Learning Rate" FontSize="11" FontWeight="Bold" Foreground="#06B6D4" VerticalAlignment="Center"/>
+              <ToggleButton Grid.Row="3" Grid.Column="1" DataContext="{Binding LrMetrics[0]}" IsChecked="{Binding IsEnabled}" Content="pg0"/>
+              <ToggleButton Grid.Row="3" Grid.Column="2" DataContext="{Binding LrMetrics[1]}" IsChecked="{Binding IsEnabled}" Content="pg1"/>
+              <ToggleButton Grid.Row="3" Grid.Column="3" DataContext="{Binding LrMetrics[2]}" IsChecked="{Binding IsEnabled}" Content="pg2"/>
+
+              <!-- Row 4: Other (dynamic) -->
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Other" FontSize="11" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center"/>
+              <ItemsControl Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5" ItemsSource="{Binding OtherMetrics}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:MetricToggle">
+                    <ToggleButton IsChecked="{Binding IsEnabled}" Content="{Binding DisplayName}"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Grid>
+          </Border>
+
+          <!-- ─── Chart Canvas ─── -->
+          <Border Grid.Row="1" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5" Background="White" ClipToBounds="True">
+            <Canvas x:Name="ChartCanvas" Background="#FAFBFD" MinWidth="300" MinHeight="150" SizeChanged="OnCanvasSizeChanged"/>
+          </Border>
+
+          <!-- Splitter -->
+          <GridSplitter Grid.Row="2" Height="6" Background="#E4E7EB" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+          <!-- ─── Gallery ─── -->
+          <Grid Grid.Row="3" RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0" Text="Run Media Gallery" FontSize="13" FontWeight="SemiBold" Foreground="#1F8AD2" Margin="0,4,0,4"/>
+            <ListBox Grid.Row="1" ItemsSource="{Binding SelectedRun.Images}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="4" Background="Black"
+                          Width="120" Height="120" ClipToBounds="True" DoubleTapped="OnImageDoubleTapped" Cursor="Hand" Margin="2">
+                    <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Stretch="UniformToFill" ToolTip.Tip="{Binding}"/>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <!-- TAB 2: Exporter -->
+      <TabItem Header="Export">
+        <views:ExportView DataContext="{Binding ExportVM}" Margin="0"/>
+      </TabItem>
+
+      <!-- TAB 3: Inference -->
+      <TabItem Header="Test (Inference)">
+        <views:InferencePreviewView DataContext="{Binding InferenceVM}" Margin="0"/>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</UserControl>

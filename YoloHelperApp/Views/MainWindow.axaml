@@ -1,0 +1,59 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YoloHelperApp.ViewModels"
+        xmlns:views="using:YoloHelperApp.Views"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        x:Class="YoloHelperApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="YOLO Swiss Army Knife - Training &amp; Export Assistant"
+        Width="1200" Height="800" MinWidth="1000" MinHeight="600"
+        Background="#F5F7FA">
+
+
+
+  <Grid RowDefinitions="Auto,*">
+    <!-- Header/Title and Project Selector -->
+    <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E4E7EB" BorderThickness="0,0,0,1" Padding="15,10">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <!-- Small cute logo representation -->
+          <Ellipse Width="12" Height="12" Fill="#1F8AD2" Margin="0,0,8,0"/>
+          <TextBlock Text="YOLO Swiss Army Knife" FontSize="16" FontWeight="Bold" Foreground="#2A3B50" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Language Selector -->
+        <ComboBox Grid.Column="1" SelectedItem="{Binding Localization.CurrentLanguage}" VerticalAlignment="Center" Margin="0,0,20,0" Width="70">
+            <sys:String>RU</sys:String>
+            <sys:String>EN</sys:String>
+        </ComboBox>
+
+        <!-- Current working directory -->
+        <TextBlock Grid.Column="2" Text="Working Directory:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" Foreground="Gray"/>
+        <Grid Grid.Column="3" ColumnDefinitions="320,Auto" ColumnSpacing="6">
+          <TextBox Text="{Binding CurrentProjectFolder}" VerticalAlignment="Center" Height="30"/>
+          <Button Grid.Column="1" Content="Browse" Click="OnBrowseProjectFolderClick" VerticalAlignment="Center" Height="30"/>
+        </Grid>
+      </Grid>
+    </Border>
+
+    <!-- Main Navigation TabControl -->
+    <TabControl Grid.Row="1" TabStripPlacement="Top" Padding="{DynamicResource MainTabPadding}">
+      <TabItem Header="Datasets">
+        <views:DatasetView DataContext="{Binding DatasetVM}"/>
+      </TabItem>
+      <TabItem Header="Augmentations">
+        <views:AugmentationView DataContext="{Binding AugmentationVM}"/>
+      </TabItem>
+      <TabItem Header="Trainings">
+        <views:SetupView DataContext="{Binding SetupVM}"/>
+      </TabItem>
+      <TabItem Header="Analysis &amp; Models">
+        <views:AnalyzeView DataContext="{Binding AnalyzeVM}"/>
+      </TabItem>
+      <TabItem Header="System Doctor">
+        <views:SystemView DataContext="{Binding SystemVM}"/>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

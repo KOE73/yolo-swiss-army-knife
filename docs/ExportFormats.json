@@ -1,0 +1,108 @@
+{
+  "formats": [
+    {
+      "name": "PyTorch",
+      "format_arg": "",
+      "suffix": ".pt",
+      "cpu_support": true,
+      "gpu_support": true,
+      "supported_arguments": []
+    },
+    {
+      "name": "TorchScript",
+      "format_arg": "torchscript",
+      "suffix": ".torchscript",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "optimize", "batch"]
+    },
+    {
+      "name": "ONNX",
+      "format_arg": "onnx",
+      "suffix": ".onnx",
+      "cpu_support": true,
+      "gpu_support": true,
+      "supported_arguments": ["imgsz", "half", "dynamic", "simplify", "opset", "batch"]
+    },
+    {
+      "name": "OpenVINO",
+      "format_arg": "openvino",
+      "suffix": "_openvino_model",
+      "cpu_support": true,
+      "gpu_support": true,
+      "supported_arguments": ["imgsz", "half", "int8", "dynamic", "batch"]
+    },
+    {
+      "name": "TensorRT",
+      "format_arg": "engine",
+      "suffix": ".engine",
+      "cpu_support": false,
+      "gpu_support": true,
+      "supported_arguments": ["imgsz", "half", "int8", "dynamic", "simplify", "workspace", "batch"]
+    },
+    {
+      "name": "CoreML",
+      "format_arg": "coreml",
+      "suffix": ".mlpackage",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "half", "int8", "nms", "batch"]
+    },
+    {
+      "name": "TF SavedModel",
+      "format_arg": "saved_model",
+      "suffix": "_saved_model",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "keras", "int8", "batch"]
+    },
+    {
+      "name": "TF GraphDef",
+      "format_arg": "pb",
+      "suffix": ".pb",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "batch"]
+    },
+    {
+      "name": "TF Lite",
+      "format_arg": "tflite",
+      "suffix": ".tflite",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "half", "int8", "batch"]
+    },
+    {
+      "name": "TF Edge TPU",
+      "format_arg": "edgetpu",
+      "suffix": "_edgetpu.tflite",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "batch"]
+    },
+    {
+      "name": "TF.js",
+      "format_arg": "tfjs",
+      "suffix": "_web_model",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "int8", "batch"]
+    },
+    {
+      "name": "PaddlePaddle",
+      "format_arg": "paddle",
+      "suffix": "_paddle_model",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "batch"]
+    },
+    {
+      "name": "NCNN",
+      "format_arg": "ncnn",
+      "suffix": "_ncnn_model",
+      "cpu_support": true,
+      "gpu_support": false,
+      "supported_arguments": ["imgsz", "half", "int8", "batch"]
+    }
+  ]
+}

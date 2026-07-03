@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="YoloHelperApp.Views.ImageViewerWindow"
+        Title="Image Viewer"
+        WindowState="Maximized"
+        Background="#111111"
+        KeyDown="OnKeyDown"
+        PointerWheelChanged="OnPointerWheelChanged">
+    
+    <Grid>
+        <Image x:Name="MainImage" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        
+        <!-- Controls overlay -->
+        <Border Background="#80000000" CornerRadius="4" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20">
+            <TextBlock x:Name="IndexText" Foreground="White" FontSize="14" FontWeight="Bold"/>
+        </Border>
+    </Grid>
+</Window>

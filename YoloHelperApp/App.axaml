@@ -1,0 +1,29 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="YoloHelperApp.App"
+             xmlns:local="using:YoloHelperApp"
+             xmlns:converters="using:YoloHelperApp.Converters"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Resources>
+        <converters:DoubleToTranslateConverter x:Key="DoubleToTranslateConverter" />
+        <converters:PathToImageConverter x:Key="PathToImageConverter" />
+        <converters:PathToFilenameConverter x:Key="PathToFilenameConverter" />
+        <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+        <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
+        <converters:MetricToggleToBrushConverter x:Key="MetricToggleToBrushConverter" />
+        <converters:StringToColorConverter x:Key="StringToColorConverter" />
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+        <StyleInclude Source="avares://YoloHelperApp/Styles/CompactTheme.axaml" />
+        <StyleInclude Source="avares://YoloHelperApp/Styles/TabControlStyles.axaml" />
+    </Application.Styles>
+</Application>

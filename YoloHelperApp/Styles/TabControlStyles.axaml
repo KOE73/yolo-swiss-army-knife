@@ -1,0 +1,103 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- TAB CONTROL -->
+    <Style Selector="TabControl">
+        <Setter Property="Background" Value="#FFFFFF"/> <!-- Content area background -->
+        <Setter Property="Padding" Value="24"/>         <!-- Unified content padding -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Tab Strip Area with bottom border -->
+                    <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <!-- We use a WrapPanel or StackPanel for the items -->
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                                        HorizontalAlignment="Left"/>
+                    </Border>
+                    
+                    <!-- Content Area -->
+                    <Border Grid.Row="1" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Name="PART_SelectedContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="Stretch"
+                                          VerticalContentAlignment="Stretch"
+                                          Content="{TemplateBinding SelectedContent}"
+                                          ContentTemplate="{TemplateBinding SelectedContentTemplate}"/>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- TAB ITEM -->
+    <Style Selector="TabItem">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#4B5563"/>
+        <Setter Property="Padding" Value="18,10"/> <!-- Horizontal 16-20, vertical 8-10 -->
+        <Setter Property="Margin" Value="0"/> <!-- No gaps -->
+        <Setter Property="MinHeight" Value="42"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_LayoutRoot"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                    <Panel>
+                        <!-- Content wrapper with padding applied here so the bottom indicator ignores padding -->
+                        <ContentPresenter Name="PART_ContentPresenter"
+                                          Margin="{TemplateBinding Padding}"
+                                          Content="{TemplateBinding Header}"
+                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        
+                        <!-- Selected Indicator -->
+                        <Border Name="PART_SelectedPipe"
+                                Height="3"
+                                Background="#1D4ED8"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                IsVisible="False"/>
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Hover State -->
+    <Style Selector="TabItem:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="#F1F5F9"/> <!-- Very light grey-blue -->
+    </Style>
+    <Style Selector="TabItem:pointerover">
+        <Setter Property="Foreground" Value="#1F2937"/>
+    </Style>
+
+    <!-- Selected State -->
+    <Style Selector="TabItem:selected">
+        <Setter Property="Foreground" Value="#1D4ED8"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="TabItem:selected /template/ Border#PART_LayoutRoot">
+        <!-- Selected item doesn't have a hover background according to 'hover not competing with selected' -->
+        <Setter Property="Background" Value="Transparent"/> 
+    </Style>
+    <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- Disabled State (if needed) -->
+    <Style Selector="TabItem:disabled">
+        <Setter Property="Foreground" Value="#9CA3AF"/>
+        <Setter Property="Cursor" Value="Arrow"/>
+    </Style>
+</Styles>

@@ -1,0 +1,183 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YoloHelperApp.ViewModels"
+             x:Class="YoloHelperApp.Views.DatasetView"
+             x:DataType="vm:DatasetViewModel">
+
+  <Grid RowDefinitions="Auto,*" Margin="0" RowSpacing="0">
+
+    <!-- ═══ TOP: Title + Scan ═══ -->
+    <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,16">
+      <TextBlock Text="Dataset Overview" FontSize="18" FontWeight="Bold" Foreground="#1F8AD2"/>
+
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <TextBox Grid.Column="0" Text="{Binding DatasetFolder}" IsReadOnly="True"
+                 PlaceholderText="Project folder (set above)" Opacity="0.8"/>
+        <Button Grid.Column="1" Content="⟳ Scan" Command="{Binding ScanCommand}"
+                Background="#1F8AD2" Foreground="White" Padding="14,0"/>
+      </Grid>
+
+      <!-- data.yaml status -->
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <TextBlock Text="●" Foreground="{Binding HasDataYaml, Converter={StaticResource BooleanToBrushConverter}}"
+                   FontSize="10" VerticalAlignment="Center"/>
+        <TextBlock FontSize="12" VerticalAlignment="Center">
+          <TextBlock.Text>
+            <MultiBinding StringFormat="data.yaml: {0} classes  ·  train: {1}  ·  val: {2}">
+              <Binding Path="Classes.Count"/>
+              <Binding Path="TrainPath"/>
+              <Binding Path="ValPath"/>
+            </MultiBinding>
+          </TextBlock.Text>
+        </TextBlock>
+      </StackPanel>
+    </StackPanel>
+
+    <!-- ═══ BOTTOM: Two-column layout ═══ -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="16">
+
+      <!-- ══ LEFT: Statistics ══ -->
+      <Border Grid.Column="0" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="6" Padding="16">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="14">
+
+            <!-- Train / Val Split -->
+            <TextBlock Text="Train / Val Split" FontSize="14" FontWeight="SemiBold"/>
+            <Separator Height="1" Background="#E4E7EB"/>
+
+            <!-- Progress bar showing actual distribution -->
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*" Margin="0,0,0,4">
+              <ProgressBar Grid.Row="0" Value="{Binding TrainPercent}" Minimum="0" Maximum="100"
+                           Height="14" Foreground="#22C55E" Background="#F97316" CornerRadius="3"/>
+              <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,4,0,0">
+                <TextBlock Grid.Column="0" FontSize="11" FontWeight="SemiBold" Foreground="#22C55E">
+                  <TextBlock.Text>
+                    <MultiBinding StringFormat="Train: {0} ({1}%)">
+                      <Binding Path="TrainImages"/>
+                      <Binding Path="TrainPercent"/>
+                    </MultiBinding>
+                  </TextBlock.Text>
+                </TextBlock>
+                <TextBlock Grid.Column="1" FontSize="11" FontWeight="SemiBold" Foreground="#F97316" HorizontalAlignment="Right">
+                  <TextBlock.Text>
+                    <MultiBinding StringFormat="Val: {0} ({1}%)">
+                      <Binding Path="ValImages"/>
+                      <Binding Path="ValPercent"/>
+                    </MultiBinding>
+                  </TextBlock.Text>
+                </TextBlock>
+              </Grid>
+            </Grid>
+
+            <!-- Detailed counts table -->
+            <Grid ColumnDefinitions="Auto,60,60,60" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                  RowSpacing="4" ColumnSpacing="12">
+
+              <!-- Header -->
+              <TextBlock Grid.Row="0" Grid.Column="1" Text="Train" FontWeight="Bold" Foreground="#22C55E" FontSize="12"/>
+              <TextBlock Grid.Row="0" Grid.Column="2" Text="Val" FontWeight="Bold" Foreground="#F97316" FontSize="12"/>
+              <TextBlock Grid.Row="0" Grid.Column="3" Text="Total" FontWeight="Bold" FontSize="12"/>
+
+              <!-- Images -->
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Images" FontWeight="SemiBold"/>
+              <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrainImages}" FontWeight="Bold"/>
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ValImages}" FontWeight="Bold"/>
+              <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TotalImages}" FontWeight="Bold"/>
+
+              <!-- Labels -->
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Labels" FontWeight="SemiBold"/>
+              <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TrainLabels}" FontWeight="Bold"/>
+              <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ValLabels}" FontWeight="Bold"/>
+              <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding TotalLabels}" FontWeight="Bold"/>
+
+              <!-- Matched -->
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Matched" FontWeight="SemiBold" Foreground="#22C55E"/>
+              <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TrainMatched}" Foreground="#22C55E"/>
+              <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding ValMatched}" Foreground="#22C55E"/>
+              <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding TotalMatched}" Foreground="#22C55E" FontWeight="Bold"/>
+
+              <!-- Unlabeled -->
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Unlabeled" FontWeight="SemiBold" Foreground="#EF4444"/>
+              <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding TrainUnlabeled}" Foreground="#EF4444"/>
+              <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding ValUnlabeled}" Foreground="#EF4444"/>
+              <TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding TotalUnlabeled}" Foreground="#EF4444" FontWeight="Bold"/>
+
+              <Separator Grid.Row="5" Grid.ColumnSpan="4" Height="1" Background="#E4E7EB" Margin="0,4"/>
+
+              <!-- Annotations total -->
+              <TextBlock Grid.Row="6" Grid.Column="0" Text="Annotations" FontWeight="SemiBold"/>
+              <TextBlock Grid.Row="6" Grid.Column="3" Text="{Binding TotalAnnotations}" FontWeight="Bold" Foreground="#1F8AD2"/>
+            </Grid>
+
+            <!-- ── Classes table ── -->
+            <TextBlock Text="Classes" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0"/>
+            <Separator Height="1" Background="#E4E7EB"/>
+
+            <ItemsControl ItemsSource="{Binding Classes}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ClassInfoItem">
+                  <Grid ColumnDefinitions="30,*,60,50" Margin="0,2">
+                    <TextBlock Grid.Column="0" Text="{Binding Id}" Foreground="Gray" FontSize="12"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Grid.Column="2" Text="{Binding AnnotationCount}" FontWeight="Bold" FontSize="12"/>
+                    <TextBlock Grid.Column="3" FontSize="11" Foreground="Gray" HorizontalAlignment="Right">
+                      <TextBlock.Text>
+                        <Binding Path="Percent" StringFormat="{}{0:F1}%"/>
+                      </TextBlock.Text>
+                    </TextBlock>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- ══ RIGHT: Actions ══ -->
+      <Border Grid.Column="1" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="6" Padding="16">
+        <StackPanel Spacing="14">
+          <TextBlock Text="Actions" FontSize="14" FontWeight="SemiBold"/>
+          <Separator Height="1" Background="#E4E7EB"/>
+
+          <!-- Ratio slider -->
+          <TextBlock FontSize="12" FontWeight="SemiBold">
+            <TextBlock.Text>
+              <Binding Path="TrainRatioPercent" StringFormat="Reshuffle Ratio: {0:F0}% train / "/>
+            </TextBlock.Text>
+          </TextBlock>
+          <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+            <TextBlock Grid.Column="0" Text="50%" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+            <Slider Grid.Column="1" Value="{Binding TrainRatioPercent}"
+                    Minimum="50" Maximum="95" TickFrequency="5" IsSnapToTickEnabled="True"/>
+            <TextBlock Grid.Column="2" Text="95%" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+          </Grid>
+
+          <Button Content="⟳ Reshuffle (Перетасовка)" Command="{Binding ReshuffleCommand}"
+                  Background="#F97316" Foreground="White"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Height="36" CornerRadius="4"/>
+
+          <TextBlock Text="Reshuffle randomly redistributes images between train and val using fast file-rename (metadata move). No SSD wear."
+                     TextWrapping="Wrap" FontSize="11" Foreground="Gray" Margin="0,2,0,0"/>
+
+          <Separator Height="1" Background="#E4E7EB"/>
+
+          <!-- Status Log -->
+          <TextBlock Text="Log" FontSize="12" FontWeight="SemiBold"/>
+          <Border Background="#1E293B" CornerRadius="4" Padding="8" MinHeight="60">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="120">
+              <TextBlock Text="{Binding StatusLog}" Foreground="#4ADE80" FontSize="11"
+                         FontFamily="Consolas" TextWrapping="Wrap"/>
+            </ScrollViewer>
+          </Border>
+
+          <!-- Loading indicator -->
+          <ProgressBar IsIndeterminate="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                       Height="3" Foreground="#1F8AD2" Margin="0,4,0,0"/>
+        </StackPanel>
+      </Border>
+
+    </Grid>
+  </Grid>
+</UserControl>

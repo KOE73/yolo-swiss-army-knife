@@ -1,0 +1,45 @@
+## User-specific directories
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Log]/
+
+## Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## C++ / CLI Build files
+*.VC.db
+*.opendb
+
+## Publish output
+publish/
+
+## Local development configurations
+*.local.json
+localSettings.json
+
+## YOLO helper app local artifacts/scratches
+*.log
+project.ysak
+**/ExportedModels/
+**/weights/*.onnx
+**/weights/*.engine
+**/weights/*.xml
+**/weights/*.bin
+**/weights/*.mlpackage
+**/weights/*_openvino_model/
+**/weights/*_saved_model/
+**/weights/*_web_model/
+**/weights/*_ncnn_model/
+**/weights/*_paddle_model/

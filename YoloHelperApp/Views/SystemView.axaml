@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YoloHelperApp.ViewModels"
+             x:Class="YoloHelperApp.Views.SystemView"
+             x:DataType="vm:SystemViewModel">
+  <Grid RowDefinitions="*,180" Margin="15" RowSpacing="15">
+    <!-- Top Diagnostics Cards -->
+    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="15">
+        <TextBlock Text="System Environment Doctor" FontSize="18" FontWeight="Bold" Foreground="#1F8AD2" />
+        
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="15" ColumnSpacing="15">
+          <!-- Python Card -->
+          <Border Grid.Row="0" Grid.Column="0" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
+            <Grid ColumnDefinitions="Auto,*">
+              <Path Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4Z" 
+                    Fill="{Binding PythonFound, Converter={StaticResource BooleanToBrushConverter}}" Width="32" Height="32" Margin="0,0,15,0"/>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="Python Runtime" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="{Binding PythonVersion}" FontSize="12" Foreground="Gray"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- CUDA Card -->
+          <Border Grid.Row="0" Grid.Column="1" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
+            <Grid ColumnDefinitions="Auto,*">
+              <!-- Simple green/red indicator -->
+              <Ellipse Width="16" Height="16" Fill="{Binding CudaAvailable, Converter={StaticResource BooleanToBrushConverter}}" Margin="0,0,15,0"/>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="NVIDIA CUDA Acceleration" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="{Binding CudaVersion, StringFormat='{}CUDA Version: {0}'}" FontSize="12" Foreground="Gray"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Ultralytics Card -->
+          <Border Grid.Row="1" Grid.Column="0" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
+            <Grid ColumnDefinitions="Auto,*">
+              <Ellipse Width="16" Height="16" Fill="{Binding UltralyticsFound, Converter={StaticResource BooleanToBrushConverter}}" Margin="0,0,15,0"/>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="Ultralytics (YOLO)" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="{Binding UltralyticsVersion, StringFormat='{}Version: {0}'}" FontSize="12" Foreground="Gray"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- PyTorch Card -->
+          <Border Grid.Row="1" Grid.Column="1" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
+            <Grid ColumnDefinitions="Auto,*">
+              <Ellipse Width="16" Height="16" Fill="{Binding PythonFound, Converter={StaticResource BooleanToBrushConverter}}" Margin="0,0,15,0"/>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="PyTorch Framework" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="{Binding PyTorchVersion, StringFormat='{}Version: {0}'}" FontSize="12" Foreground="Gray"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+          <Button Grid.Column="0" Content="Run Diagnostic Check" Command="{Binding DiagnoseCommand}" 
+                  Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="40" CornerRadius="5"/>
+          <Button Grid.Column="1" Content="Install/Update Dependencies" Command="{Binding InstallCommand}" 
+                  Background="Green" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="40" CornerRadius="5"/>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Bottom Install Console -->
+    <Grid Grid.Row="1" RowDefinitions="Auto,*">
+      <TextBlock Grid.Row="0" Text="Dependencies Installation Terminal Output" FontSize="12" FontWeight="Bold" Foreground="Gray"/>
+      <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="5" Padding="8">
+        <TextBlock Text="{Binding InstallLog}" Foreground="Lime" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"/>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>

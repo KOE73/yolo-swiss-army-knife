@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YoloHelperApp.ViewModels"
+             x:Class="YoloHelperApp.Views.SetupView"
+             x:DataType="vm:SetupViewModel">
+  <Grid ColumnDefinitions="*,*" Margin="15">
+    <!-- Left Panel: Input controls -->
+    <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,10,0" Padding="0,0,15,0">
+      <StackPanel Spacing="12">
+        <TextBlock Text="YOLO Training Parameters" FontSize="18" FontWeight="Bold" Foreground="#1F8AD2" />
+        
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="5">
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="Project Directory (project=):" VerticalAlignment="Center"/>
+          <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ProjectName}"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="Run Name (name=):" VerticalAlignment="Center"/>
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RunName}"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="YOLO Task:" VerticalAlignment="Center"/>
+          <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding AvailableTasks}" SelectedItem="{Binding Task}" HorizontalAlignment="Stretch" />
+
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="Model Version:" VerticalAlignment="Center"/>
+          <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding ModelVersion}" Minimum="1" Maximum="99" FormatString="0" />
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="Model Size:" VerticalAlignment="Center"/>
+          <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding AvailableSizes}" SelectedItem="{Binding ModelSize}" HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="Base Model File:" VerticalAlignment="Center"/>
+          <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ModelName}"/>
+
+          <TextBlock Grid.Row="6" Grid.Column="0" Text="Epochs:" VerticalAlignment="Center"/>
+          <NumericUpDown Grid.Row="6" Grid.Column="1" Value="{Binding Epochs}" Minimum="1" Maximum="1000" FormatString="0"/>
+
+          <TextBlock Grid.Row="7" Grid.Column="0" Text="Batch Size (-1=auto):" VerticalAlignment="Center"/>
+          <NumericUpDown Grid.Row="7" Grid.Column="1" Value="{Binding BatchSize}" Minimum="-1" Maximum="256" FormatString="0"/>
+
+          <TextBlock Grid.Row="8" Grid.Column="0" Text="Image Size (imgsz):" VerticalAlignment="Center"/>
+          <NumericUpDown Grid.Row="8" Grid.Column="1" Value="{Binding ImageSize}" Minimum="128" Maximum="1280" Increment="32" FormatString="0"/>
+
+          <TextBlock Grid.Row="9" Grid.Column="0" Text="Augmentation Profile:" VerticalAlignment="Center"/>
+          <ComboBox Grid.Row="9" Grid.Column="1" ItemsSource="{Binding AugmentationProfiles}" SelectedItem="{Binding SelectedAugmentationProfile}" HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding ProfileName}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+
+        <Separator Height="1" Background="#D0D7DF" Margin="0,5"/>
+        <CheckBox Content="Use MLFlow Tracking" IsChecked="{Binding UseMlflow}"/>
+        
+        <StackPanel Spacing="6" IsEnabled="{Binding UseMlflow}">
+          <TextBox PlaceholderText="MLFlow Tracking URI" Text="{Binding MlflowTrackingUri}"/>
+          <TextBox PlaceholderText="S3 Endpoint URL" Text="{Binding MlflowS3EndpointUrl}"/>
+          <TextBox PlaceholderText="AWS Access Key ID" Text="{Binding AwsAccessKeyId}"/>
+          <TextBox PlaceholderText="AWS Secret Access Key" PasswordChar="*" Text="{Binding AwsSecretAccessKey}"/>
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+          <Button Grid.Column="0" Content="Save Settings" Command="{Binding SaveSettingsCommand}" 
+                  Background="#E4E7EB" Foreground="#333333" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Height="40" CornerRadius="5"/>
+          <Button Grid.Column="1" Content="Start Training Process" Command="{Binding StartTrainCommand}" 
+                  Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Height="40" CornerRadius="5"/>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Right Panel: Visual Illustrations (Kindergarten Style) -->
+    <Border Grid.Column="1" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
+      <StackPanel Spacing="15" VerticalAlignment="Center">
+        <TextBlock Text="Interactive Parameters Visualizer" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+
+        <!-- Image Size Visualizer -->
+        <Border Background="#FFFFFF" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="10">
+          <StackPanel Spacing="5" HorizontalAlignment="Center">
+            <TextBlock Text="Model Image Resolution:" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+            <Grid Width="100" Height="100" Background="Black">
+              <!-- Pixel Grid Representation. Thickness changes with imgsz. -->
+              <Rectangle Width="80" Height="80" Stroke="#50FFFFFF" StrokeDashArray="2,2" 
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding ImageSize, StringFormat='{}{0} px'}" Foreground="White" 
+                         FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

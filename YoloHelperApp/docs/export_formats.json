@@ -1,0 +1,29 @@
+{
+  "formats": [
+    { "id": "onnx", "name": "ONNX", "extension": ".onnx", "engine": "onnxruntime", "device": "cpu/gpu" },
+    { "id": "torchscript", "name": "TorchScript", "extension": ".torchscript", "engine": "pytorch", "device": "cpu/gpu" },
+    { "id": "openvino", "name": "OpenVINO", "extension": "_openvino_model", "engine": "openvino", "device": "cpu" },
+    { "id": "engine", "name": "TensorRT", "extension": ".engine", "engine": "tensorrt", "device": "gpu" },
+    { "id": "coreml", "name": "CoreML", "extension": ".mlpackage", "engine": "coreml", "device": "apple" },
+    { "id": "saved_model", "name": "TF SavedModel", "extension": "_saved_model", "engine": "tensorflow", "device": "cpu/gpu" },
+    { "id": "pb", "name": "TF GraphDef", "extension": ".pb", "engine": "tensorflow", "device": "cpu/gpu" },
+    { "id": "tflite", "name": "TF Lite", "extension": ".tflite", "engine": "tensorflow", "device": "mobile" },
+    { "id": "edgetpu", "name": "TF Edge TPU", "extension": "_edgetpu.tflite", "engine": "tensorflow", "device": "tpu" },
+    { "id": "tfjs", "name": "TF.js", "extension": "_web_model", "engine": "tensorflow", "device": "web" },
+    { "id": "paddle", "name": "PaddlePaddle", "extension": "_paddle_model", "engine": "paddle", "device": "cpu/gpu" },
+    { "id": "ncnn", "name": "ncnn", "extension": "_ncnn_model", "engine": "ncnn", "device": "mobile" }
+  ],
+  "arguments": [
+    { "name": "format", "type": "string", "default": "torchscript", "description": "Target export format" },
+    { "name": "imgsz", "type": "int|tuple", "default": 640, "description": "Image size as scalar or (h, w) list" },
+    { "name": "keras", "type": "bool", "default": false, "description": "Use Keras for TF SavedModel export" },
+    { "name": "optimize", "type": "bool", "default": false, "description": "TorchScript: optimize for mobile" },
+    { "name": "half", "type": "bool", "default": false, "description": "FP16 quantization" },
+    { "name": "int8", "type": "bool", "default": false, "description": "INT8 quantization" },
+    { "name": "dynamic", "type": "bool", "default": false, "description": "Dynamic axes for ONNX/TensorRT" },
+    { "name": "simplify", "type": "bool", "default": false, "description": "Simplify ONNX model" },
+    { "name": "opset", "type": "int", "default": 17, "description": "ONNX opset version" },
+    { "name": "workspace", "type": "float", "default": 4.0, "description": "TensorRT workspace size (GB)" },
+    { "name": "nms", "type": "bool", "default": false, "description": "Add NMS module to model" }
+  ]
+}
