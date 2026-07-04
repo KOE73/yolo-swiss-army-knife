@@ -10,6 +10,15 @@ public class LocalizationService : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    private AppSettingsService? _appSettings;
+
+    /// <summary>Loads the persisted language and keeps future changes saved to app settings.</summary>
+    public void Initialize(AppSettingsService appSettings)
+    {
+        _appSettings = appSettings;
+        CurrentLanguage = appSettings.Settings.Language;
+    }
+
     private string _currentLanguage = "RU";
     public string CurrentLanguage
     {
@@ -21,6 +30,12 @@ public class LocalizationService : INotifyPropertyChanged
                 _currentLanguage = value;
                 OnPropertyChanged();
                 OnPropertyChanged("Item"); // Trigger refresh for all localized strings
+
+                if (_appSettings != null && _appSettings.Settings.Language != value)
+                {
+                    _appSettings.Settings.Language = value;
+                    _appSettings.Save();
+                }
             }
         }
     }

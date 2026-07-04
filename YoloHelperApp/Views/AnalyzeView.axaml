@@ -3,13 +3,14 @@
              xmlns:vm="using:YoloHelperApp.ViewModels"
              xmlns:views="using:YoloHelperApp.Views"
              xmlns:models="using:YoloHelperApp.Models"
+             xmlns:services="using:YoloHelperApp.Services"
              x:Class="YoloHelperApp.Views.AnalyzeView"
              x:DataType="vm:AnalyzeViewModel">
   <Grid ColumnDefinitions="320,6,*" Margin="{DynamicResource PageMargin}">
 
     <!-- ═══ LEFT: Runs List (Master) ═══ -->
     <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="6">
-      <TextBlock Grid.Row="0" Text="Model Manager (Runs)" FontSize="16" FontWeight="Bold" Foreground="#1F8AD2" Margin="4,0,0,0"/>
+      <TextBlock Grid.Row="0" Text="Model Manager (Runs)" Classes="header" Foreground="{DynamicResource AccentBrush}" Margin="4,0,0,0"/>
       <ListBox Grid.Row="1" ItemsSource="{Binding Runs}" SelectedItem="{Binding SelectedRun}"
                BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5">
         <ListBox.Styles>
@@ -24,9 +25,33 @@
               <CheckBox Grid.Column="0" IsChecked="{Binding IsSelectedForChart}" 
                         Margin="0,0,4,0" MinHeight="16" VerticalAlignment="Center"/>
               
-              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="0">
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="12"/>
-                <TextBlock Text="{Binding Created, StringFormat='{}{0:g}'}" FontSize="9" Foreground="Gray"/>
+                <TextBlock Text="{Binding Created, StringFormat='{}{0:g}'}" FontSize="10" Classes="secondary"/>
+                <!-- Training setup from args.yaml: one parameter per cell, no wrapping -->
+                <StackPanel Orientation="Horizontal" Spacing="3" ClipToBounds="True"
+                            IsVisible="{Binding HasArgsInfo}" ToolTip.Tip="{Binding Info}">
+                  <StackPanel.Styles>
+                    <Style Selector="Border.argCell">
+                      <Setter Property="Background" Value="#EEF2F7"/>
+                      <Setter Property="CornerRadius" Value="3"/>
+                      <Setter Property="Padding" Value="4,1"/>
+                    </Style>
+                    <Style Selector="Border.argCell TextBlock">
+                      <Setter Property="FontSize" Value="11"/>
+                      <Setter Property="Foreground" Value="#111111"/>
+                      <Setter Property="TextWrapping" Value="NoWrap"/>
+                      <Setter Property="TextTrimming" Value="None"/>
+                    </Style>
+                  </StackPanel.Styles>
+                  <Border Classes="argCell"><TextBlock Text="{Binding Task}" FontWeight="SemiBold"/></Border>
+                  <Border Classes="argCell"><TextBlock Text="{Binding ImgSize, StringFormat='sz {0}'}"/></Border>
+                  <Border Classes="argCell"><TextBlock Text="{Binding Epochs, StringFormat='{}{0} ep'}"/></Border>
+                  <Border Classes="argCell"><TextBlock Text="{Binding Batch, StringFormat='b {0}'}"/></Border>
+                </StackPanel>
+                <TextBlock Text="{Binding BaseModel}" FontSize="11" Foreground="#111111"
+                           IsVisible="{Binding HasArgsInfo}" TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding BaseModel}"/>
               </StackPanel>
 
               <!-- ONNX Count -->
@@ -145,11 +170,15 @@
                 </ItemsPanelTemplate>
               </ListBox.ItemsPanel>
               <ListBox.ItemTemplate>
-                <DataTemplate>
-                  <Border BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="4" Background="Black"
-                          Width="120" Height="120" ClipToBounds="True" DoubleTapped="OnImageDoubleTapped" Cursor="Hand" Margin="2">
-                    <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Stretch="UniformToFill" ToolTip.Tip="{Binding}"/>
-                  </Border>
+                <DataTemplate x:DataType="services:ThumbnailItem">
+                  <StackPanel Width="120" Margin="2" DoubleTapped="OnImageDoubleTapped" Cursor="Hand" Background="Transparent">
+                    <Border BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="4" Background="Black"
+                            Width="120" Height="104" ClipToBounds="True">
+                      <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" ToolTip.Tip="{Binding Path}"/>
+                    </Border>
+                    <TextBlock Text="{Binding FileName}" FontSize="10" Classes="secondary"
+                               TextTrimming="CharacterEllipsis" TextAlignment="Center" ToolTip.Tip="{Binding FileName}"/>
+                  </StackPanel>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>

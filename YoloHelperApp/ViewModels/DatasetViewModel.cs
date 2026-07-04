@@ -174,7 +174,7 @@ public partial class DatasetViewModel : ViewModelBase
         {
             double ratio = TrainRatioPercent / 100.0;
             await Task.Run(() => _datasetService.Reshuffle(DatasetFolder, ratio));
-            StatusLog = "Reshuffle completed (fast metadata moves, no SSD wear).";
+            StatusLog = "Reshuffle completed (files physically moved between train/val).";
             await UpdateStatsAsync();
             ReshuffleCompleted?.Invoke();
         }

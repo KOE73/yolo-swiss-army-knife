@@ -128,7 +128,10 @@ public class EnvironmentService
 
             var outputBuilder = new StringBuilder();
             process.OutputDataReceived += (s, e) => { if (e.Data != null) outputBuilder.AppendLine(e.Data); };
+            // stderr must be drained too, otherwise the child blocks once the pipe buffer fills up
+            process.ErrorDataReceived += (s, e) => { };
             process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             process.WaitForExit();
 
             return (process.ExitCode, outputBuilder.ToString());

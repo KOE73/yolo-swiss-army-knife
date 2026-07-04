@@ -20,10 +20,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var mainVm = new MainWindowViewModel(desktop.Args);
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(desktop.Args),
+                DataContext = mainVm,
             };
+            // Don't leave orphaned yolo train/export processes behind
+            desktop.Exit += (_, _) => mainVm.Shutdown();
         }
 
         base.OnFrameworkInitializationCompleted();

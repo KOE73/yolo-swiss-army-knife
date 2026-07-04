@@ -5,12 +5,23 @@
         <!-- Global Visual Settings for Compact Theme (Схема) -->
         <Thickness x:Key="CompactPadding">4,2,4,2</Thickness>
         <Thickness x:Key="CompactMargin">0,0,0,3</Thickness>
-        <x:Double x:Key="CompactHeight">26</x:Double>
+        <x:Double x:Key="CompactHeight">24</x:Double>
         <x:Double x:Key="CompactFontSize">13</x:Double>
-        
+        <x:Double x:Key="DescriptionFontSize">11.5</x:Double>
+        <x:Double x:Key="HeaderFontSize">15</x:Double>
+
+        <!-- Text colors: dark enough to stay readable on white -->
+        <SolidColorBrush x:Key="PrimaryTextBrush">#1E2A3A</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryTextBrush">#44546A</SolidColorBrush>
+        <SolidColorBrush x:Key="AccentBrush">#1F8AD2</SolidColorBrush>
+
+        <!-- Cards -->
+        <SolidColorBrush x:Key="CardBackgroundBrush">#FAFBFD</SolidColorBrush>
+        <SolidColorBrush x:Key="CardBorderBrush">#D4DAE3</SolidColorBrush>
+
         <!-- Layout Margins and Paddings -->
-        <Thickness x:Key="MainTabPadding">12</Thickness>
-        <Thickness x:Key="DetailTabPadding">8</Thickness>
+        <Thickness x:Key="MainTabPadding">8</Thickness>
+        <Thickness x:Key="DetailTabPadding">6</Thickness>
         <Thickness x:Key="PageMargin">6</Thickness>
         <Thickness x:Key="SplitterMargin">3,0</Thickness>
         <Thickness x:Key="ColumnMargin">8,0,0,0</Thickness>
@@ -20,6 +31,7 @@
     <Style Selector="TextBox">
         <Setter Property="Padding" Value="{DynamicResource CompactPadding}"/>
         <Setter Property="Height" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
         <Setter Property="Margin" Value="{DynamicResource CompactMargin}"/>
         <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -28,6 +40,7 @@
     <Style Selector="ComboBox">
         <Setter Property="Padding" Value="{DynamicResource CompactPadding}"/>
         <Setter Property="Height" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
         <Setter Property="Margin" Value="{DynamicResource CompactMargin}"/>
         <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -36,16 +49,34 @@
     <Style Selector="NumericUpDown">
         <Setter Property="Padding" Value="{DynamicResource CompactPadding}"/>
         <Setter Property="Height" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
         <Setter Property="Margin" Value="{DynamicResource CompactMargin}"/>
         <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
+    <Style Selector="NumericUpDown /template/ TextBox">
+        <Setter Property="MinHeight" Value="0"/>
+    </Style>
 
     <Style Selector="Button">
-        <Setter Property="Padding" Value="{DynamicResource CompactPadding}"/>
+        <Setter Property="Padding" Value="8,2"/>
         <Setter Property="Height" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
         <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="DropDownButton">
+        <Setter Property="Padding" Value="8,2"/>
+        <Setter Property="Height" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="CheckBox">
+        <Setter Property="MinHeight" Value="{DynamicResource CompactHeight}"/>
+        <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
     </Style>
 
     <Style Selector="ToggleSwitch">
@@ -55,5 +86,33 @@
 
     <Style Selector="TextBlock:not(.header)">
         <Setter Property="FontSize" Value="{DynamicResource CompactFontSize}"/>
+    </Style>
+
+    <!-- Secondary label: readable dark slate instead of washed-out gray -->
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+    </Style>
+
+    <!-- Long helper descriptions (e.g. augmentation hints): smaller but still readable -->
+    <Style Selector="TextBlock.desc">
+        <Setter Property="FontSize" Value="{DynamicResource DescriptionFontSize}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Section headers -->
+    <Style Selector="TextBlock.header">
+        <Setter Property="FontSize" Value="{DynamicResource HeaderFontSize}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+    </Style>
+
+    <!-- Utilitarian card -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8"/>
     </Style>
 </Styles>

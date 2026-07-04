@@ -12,10 +12,13 @@
 * **Это опционально:** Инжекция `ByteBGR` — исключительно бонус! Сам тестовый прогон и инференс в `InferenceService.cs` **должны работать без него**. Библиотека `NeuroModFlowNet.ONNX` (через `PosCvdnnFP32`) автоматически нормирует Float-входы, если модель сгенерирована без ByteBGR.
 * **Симптомы ошибки "Зеленые квадраты":** Если при инференсе на выходе получается мусор (маленькие зеленые квадраты), это **НЕ** из-за отсутствия ByteBGR. Это означает, что тип задачи (Task) определен неверно. Например, модель `obb`, а `InferenceService` использует фабрику `YoloBoxFactory` (detect) вместо `YoloObbFactory`.
 * **Правило:** Читайте `task` модели из `args.yaml` в папке обучения. Не хардкодьте фабрики. При экспорте тестовой ONNX `InjectByteBGR = true` добавляет удобства, но не является строго обязательным.
+* **NMS ОБЯЗАТЕЛЕН:** экстракторы NeuroModFlowNet (`Yolo*Nms*Extractor`) рассчитаны на модель со **встроенным NMS** (`nms=True` при экспорте; выход вида `[1, maxDet, 6..8]`). Сырой head (`[1, каналы, анкеры]`, например `[1,7,1344]`) декодируется в мусор. Все экспортные профили и тестовый ONNX по умолчанию идут с `nms=True`; YOLO26+ вообще существует только с NMS. `InferenceService` предупреждает в лог, если у выбранной модели выход похож на сырой head.
+* Исходники/примеры библиотеки NeuroModFlowNet.ONNX лежат локально в `C:\Git\NeuroModFlowNet.ONNX` (docs/usage, samples/Demo.Dashboard) — сверяйтесь там при вопросах к формату входа/выхода.
 
 ## 3. UI и Разметка (Avalonia)
-* Мы используем кастомную компактную темную тему (`Styles/CompactTheme.axaml`).
+* Мы используем кастомную компактную светлую утилитарную тему (`Styles/CompactTheme.axaml`): контролы 24px, минимум зазоров, читаемый текст.
 * **ОТСТУПЫ:** Никогда не хардкодьте `Margin` для базовых страниц и колонок. Чтобы контент не "прилипал" к разделителям `GridSplitter` и краям окна, используйте глобальные ресурсы из `CompactTheme.axaml`: `{DynamicResource PageMargin}`, `{DynamicResource ColumnMargin}`, `{DynamicResource SplitterMargin}`.
+* **ТЕКСТ И КАРТОЧКИ:** не хардкодьте `Foreground="Gray"`, `Height="30/40"`, `FontSize` для подписей. Используйте классы из `CompactTheme.axaml`: `TextBlock.secondary` (вторичные подписи), `TextBlock.desc` (длинные описания), `TextBlock.header` (заголовки секций), `Border.card` (карточки), ресурсы `SecondaryTextBrush`/`AccentBrush`.
 
 ## 4. Локальные пути и секреты (Security & Paths)
 * **Абсолютные пути:** В коде не должно быть жестких привязок к локальным дискам разработчика (вроде `C:\NN`, `C:\Proect\Git` и т.д.).
@@ -26,7 +29,13 @@
 ## 5. Заметки по коду и TODO
 * `AnalyzeViewModel.cs` и `InferencePreviewViewModel.cs` плотно связаны коллбеками, чтобы при экспорте тестовой модели список моделей обновлялся, а при выборе новой модели мгновенно перерисовывался результат.
 * При обновлении списков `ObservableCollection` (например, `TrainRun`) старайтесь обновлять свойства существующих объектов, а не пересоздавать список с нуля. Иначе сбрасывается UI-фокус, и слетает привязка выбранной модели.
-* **TODO (на будущее):** В `InferenceService.cs` реализовать поддержку сегментации (`seg`). Сейчас там стоит заглушка.
+* **Проектная парадигма:** проект = файл `*.ysak` (имя любое, при создании — `<ИмяПапки>.ysak`); корень проекта — папка файла. Без открытого проекта вкладки задизейблены (гейт `MainWindowViewModel.IsProjectOpen`). Файл НЕ создаётся неявно — только явное Create. Легаси `project.ysak` открывается как обычный проект (`ProjectService.ResolveProjectFileInFolder` предпочитает его при открытии папки/CLI-аргумента).
+* **Конфиг проекта:** `*.ysak` — структурированный (version: 2, секции `train`/`mlflow`/`augmentation`/`export`/`tools`/`postExports`). Единственный владелец загруженного конфига — `ProjectService` (`Current` + `Save()`, `LoadProjectFile`/`CreateProject`/`Reload`); ViewModel'и мутируют секции `Current` и вызывают `Save()`, чтобы не затирать чужие данные. Старые плоские файлы v1 мигрируются автоматически.
+* **Настройки приложения (не проекта):** язык UI и MRU последних проектов — `AppSettingsService` → `%APPDATA%\YSAK\settings.json`. Не пихайте их в `*.ysak`.
+* **Windows shell:** `WindowsShellService` (AppUserModelID в `Program.Main`, ассоциация `.ysak` в HKCU, `SHAddToRecentDocs` для jump list). Все методы — под guard `OperatingSystem.IsWindows()`; реестр/джамп-лист не тестируем в юнит-тестах.
+* **Нейминг экспортированных моделей:** единый источник — `YoloModelNamingHelper` (`GetExportedFileName`, `IsAutoTestModel`, `CollectOnnxFiles`, `CreateAutoTestProfile`). Не хардкодьте строки вида `best_img640_op12_fp32` в ViewModel'ях.
+* **Параметры аугментаций** передаются в `yolo train` CLI-аргументами в snake_case (`hsv_h=...`). Не сериализуйте их через YamlDotNet c CamelCase-конвенцией — она портит ключи (`hsvH`).
+* **TODO (на будущее):** актуальный список — в `docs/TODO.md` (seg-инференс, фильтры MinWidth/MinHeight, виртуальный сплит, локализация).
 
 ## 6. Локальный контекст разработчика (от пользователя)
 * Пользователь хранит обучения YOLO в директории `C:\NN` (там очень много разных вариантов обучения).

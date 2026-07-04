@@ -43,22 +43,8 @@ public partial class AnalyzeViewModel
 
                     string weightsPath = Path.Combine(dir, "weights");
                     string resultsCsv = Path.Combine(dir, "results.csv");
-                    string exportedModelsPath = Path.Combine(dir, "ExportedModels");
-                    
-                    var onnxModels = new List<string>();
-                    if (Directory.Exists(weightsPath))
-                    {
-                        onnxModels.AddRange(Directory.GetFiles(weightsPath, "*.onnx"));
-                    }
-                    if (Directory.Exists(exportedModelsPath))
-                    {
-                        onnxModels.AddRange(Directory.GetFiles(exportedModelsPath, "*.onnx"));
-                    }
-                    if (Directory.Exists(dir))
-                    {
-                        onnxModels.AddRange(Directory.GetFiles(dir, "*.onnx"));
-                    }
-                    int onnxCount = onnxModels.Distinct().Count();
+
+                    int onnxCount = Services.YoloModelNamingHelper.CollectOnnxFiles(dir).Count;
 
                     if (Directory.Exists(weightsPath) || File.Exists(resultsCsv) || onnxCount > 0)
                     {
@@ -81,6 +67,7 @@ public partial class AnalyzeViewModel
                             run.Images = Directory.GetFiles(dir, "*.jpg")
                                 .Concat(Directory.GetFiles(dir, "*.png"))
                                 .Take(12)
+                                .Select(f => new Services.ThumbnailItem(f, decodeWidth: 240))
                                 .ToList();
                         }
 
@@ -107,6 +94,7 @@ public partial class AnalyzeViewModel
                     existing.OnnxCount = sr.OnnxCount;
                     existing.Metrics = sr.Metrics;
                     existing.Images = sr.Images;
+                    existing.LoadArgsInfo();
                 }
                 else
                 {
@@ -183,12 +171,15 @@ public partial class AnalyzeViewModel
                 var parts = line.Split(',').Select(p => p.Trim()).ToList();
                 if (parts.Count < headers.Count) continue;
 
-                for (int i = 1; i < parts.Count; i++)
+                // Never read past the header count, and keep all series the same length
+                // (an unparseable cell repeats the previous value instead of shifting the curve)
+                for (int i = 1; i < headers.Count; i++)
                 {
-                    if (double.TryParse(parts[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double val))
-                    {
-                        seriesList[i - 1].Values.Add(val);
-                    }
+                    var series = seriesList[i - 1];
+                    double val = double.TryParse(parts[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double parsed)
+                        ? parsed
+                        : (series.Values.Count > 0 ? series.Values[^1] : 0);
+                    series.Values.Add(val);
                 }
             }
 

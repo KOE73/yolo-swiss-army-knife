@@ -28,7 +28,7 @@ Forget the limitations of exporting with a single checkbox. Configure flexible p
 A specific and powerful feature for C++ / C# production environments. The app can automatically embed a **ByteBGR** preprocessing node into ONNX models (using `NeuroModFlowNet.ONNX` tools). The model then accepts a raw `uint8` byte stream directly from camera feeds, eliminating the need to write normalization code on the client side.
 
 ### 4. 🛠️ Post-Export Pipeline Automation
-After export, you often need to copy the file to a project directory or upload it to a server. Define a list of `post_exports` in the project configuration, and YSAK will automatically trigger your scripts (`.ps1`, `.bat`, `.cmd`, or CLI commands), passing the paths to the newly exported models.
+After export, you often need to copy the file to a project directory or upload it to a server. Define a list of `postExports` in the project configuration (`project.ysak`), and YSAK will automatically trigger your scripts (`.ps1`, `.bat`, `.cmd`, or CLI commands), passing the paths to the newly exported models.
 
 ### 5. 🎯 Instant Inference Preview
 Verify the export results immediately inside the app!
@@ -43,8 +43,8 @@ Verify the export results immediately inside the app!
 * **OS:** Windows 10/11
 * **Runtime:** .NET 10.0 + Avalonia UI (included)
 * **External Tools:**
-  * Python with `ultralytics` installed in the environment (for model exporting).
-  * `NeuroModFlowNet.ONNX.Tools` on system `PATH` (for ByteBGR injection).
+  * Python with `ultralytics` installed in the environment (for training and model exporting).
+  * *(Optional)* `NeuroModFlowNet.ONNX.Tools` on system `PATH` or configured via `tools.onnxToolsPath` in `project.ysak` — only needed for ByteBGR injection; inference preview works without it.
 
 ---
 

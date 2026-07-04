@@ -11,6 +11,8 @@ public partial class SystemViewModel : ViewModelBase
 {
     private readonly EnvironmentService _envService;
 
+    public LocalizationService Localization => LocalizationService.Instance;
+
     [ObservableProperty] private bool _pythonFound = false;
     [ObservableProperty] private string _pythonVersion = "Scanning...";
     [ObservableProperty] private bool _pipFound = false;
@@ -24,8 +26,12 @@ public partial class SystemViewModel : ViewModelBase
     [ObservableProperty] private bool _isInstalling = false;
     [ObservableProperty] private bool _isLoading = false;
 
+    [ObservableProperty] private string _fileAssociationStatus = "";
+    public bool CanRegisterFileAssociation => OperatingSystem.IsWindows() && WindowsShellService.GetExecutablePath() != null;
+
     public ICommand DiagnoseCommand { get; }
     public ICommand InstallCommand { get; }
+    public ICommand RegisterFileAssociationCommand { get; }
 
     public SystemViewModel(EnvironmentService envService)
     {
@@ -34,9 +40,48 @@ public partial class SystemViewModel : ViewModelBase
 
         DiagnoseCommand = new AsyncRelayCommand(DiagnoseAsync);
         InstallCommand = new AsyncRelayCommand(InstallAsync);
-        
+        RegisterFileAssociationCommand = new RelayCommand(RegisterFileAssociation);
+
+        RefreshFileAssociationStatus();
+
         // Auto-diagnose on startup
         _ = DiagnoseAsync();
+    }
+
+    private void RegisterFileAssociation()
+    {
+        if (WindowsShellService.RegisterFileAssociation())
+        {
+            InstallLog += "*.ysak file association registered for current user.\n";
+        }
+        else
+        {
+            InstallLog += "[ERROR] Cannot register *.ysak association on this platform/launch mode.\n";
+        }
+        RefreshFileAssociationStatus();
+    }
+
+    private void RefreshFileAssociationStatus()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            FileAssociationStatus = "Not available on this OS";
+            return;
+        }
+
+        string? registered = WindowsShellService.GetRegisteredExecutable();
+        if (registered == null)
+        {
+            FileAssociationStatus = "*.ysak is not associated";
+        }
+        else if (WindowsShellService.IsFileAssociationRegistered())
+        {
+            FileAssociationStatus = $"Registered: {registered}";
+        }
+        else
+        {
+            FileAssociationStatus = $"Registered to another exe: {registered}";
+        }
     }
 
     public async Task DiagnoseAsync()

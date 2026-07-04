@@ -4,15 +4,15 @@
              x:Class="YoloHelperApp.Views.DatasetView"
              x:DataType="vm:DatasetViewModel">
 
-  <Grid RowDefinitions="Auto,*" Margin="0" RowSpacing="0">
+  <Grid RowDefinitions="Auto,*" Margin="{DynamicResource PageMargin}" RowSpacing="0">
 
     <!-- ═══ TOP: Title + Scan ═══ -->
-    <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,16">
-      <TextBlock Text="Dataset Overview" FontSize="18" FontWeight="Bold" Foreground="#1F8AD2"/>
+    <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,8">
+      <TextBlock Text="Dataset Overview" Classes="header" Foreground="{DynamicResource AccentBrush}"/>
 
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
         <TextBox Grid.Column="0" Text="{Binding DatasetFolder}" IsReadOnly="True"
-                 PlaceholderText="Project folder (set above)" Opacity="0.8"/>
+                 PlaceholderText="Project folder (from the opened .ysak)" Opacity="0.8"/>
         <Button Grid.Column="1" Content="⟳ Scan" Command="{Binding ScanCommand}"
                 Background="#1F8AD2" Foreground="White" Padding="14,0"/>
       </Grid>
@@ -34,12 +34,12 @@
     </StackPanel>
 
     <!-- ═══ BOTTOM: Two-column layout ═══ -->
-    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="16">
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="8">
 
       <!-- ══ LEFT: Statistics ══ -->
-      <Border Grid.Column="0" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="6" Padding="16">
+      <Border Grid.Column="0" Classes="card">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-          <StackPanel Spacing="14">
+          <StackPanel Spacing="8">
 
             <!-- Train / Val Split -->
             <TextBlock Text="Train / Val Split" FontSize="14" FontWeight="SemiBold"/>
@@ -117,10 +117,10 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:ClassInfoItem">
                   <Grid ColumnDefinitions="30,*,60,50" Margin="0,2">
-                    <TextBlock Grid.Column="0" Text="{Binding Id}" Foreground="Gray" FontSize="12"/>
+                    <TextBlock Grid.Column="0" Text="{Binding Id}" Classes="secondary" FontSize="12"/>
                     <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"/>
                     <TextBlock Grid.Column="2" Text="{Binding AnnotationCount}" FontWeight="Bold" FontSize="12"/>
-                    <TextBlock Grid.Column="3" FontSize="11" Foreground="Gray" HorizontalAlignment="Right">
+                    <TextBlock Grid.Column="3" FontSize="11" Classes="secondary" HorizontalAlignment="Right">
                       <TextBlock.Text>
                         <Binding Path="Percent" StringFormat="{}{0:F1}%"/>
                       </TextBlock.Text>
@@ -135,8 +135,8 @@
       </Border>
 
       <!-- ══ RIGHT: Actions ══ -->
-      <Border Grid.Column="1" Background="#FAFBFD" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="6" Padding="16">
-        <StackPanel Spacing="14">
+      <Border Grid.Column="1" Classes="card">
+        <StackPanel Spacing="8">
           <TextBlock Text="Actions" FontSize="14" FontWeight="SemiBold"/>
           <Separator Height="1" Background="#E4E7EB"/>
 
@@ -147,19 +147,19 @@
             </TextBlock.Text>
           </TextBlock>
           <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-            <TextBlock Grid.Column="0" Text="50%" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="0" Text="50%" FontSize="11" Classes="secondary" VerticalAlignment="Center"/>
             <Slider Grid.Column="1" Value="{Binding TrainRatioPercent}"
                     Minimum="50" Maximum="95" TickFrequency="5" IsSnapToTickEnabled="True"/>
-            <TextBlock Grid.Column="2" Text="95%" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="95%" FontSize="11" Classes="secondary" VerticalAlignment="Center"/>
           </Grid>
 
           <Button Content="⟳ Reshuffle (Перетасовка)" Command="{Binding ReshuffleCommand}"
                   Background="#F97316" Foreground="White"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                  Height="36" CornerRadius="4"/>
+                  CornerRadius="4"/>
 
           <TextBlock Text="Reshuffle randomly redistributes images between train and val using fast file-rename (metadata move). No SSD wear."
-                     TextWrapping="Wrap" FontSize="11" Foreground="Gray" Margin="0,2,0,0"/>
+                     Classes="desc" Margin="0,2,0,0"/>
 
           <Separator Height="1" Background="#E4E7EB"/>
 

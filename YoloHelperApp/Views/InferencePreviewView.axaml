@@ -1,12 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:YoloHelperApp.ViewModels"
+             xmlns:services="using:YoloHelperApp.Services"
              x:Class="YoloHelperApp.Views.InferencePreviewView"
              x:DataType="vm:InferencePreviewViewModel">
   <Grid ColumnDefinitions="220,6,260,6,*" Margin="0">
     
     <!-- 1. ONNX Variants -->
-    <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="5">
+    <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto,Auto" RowSpacing="5">
       <TextBlock Grid.Row="0" Text="ONNX Variants:" FontWeight="SemiBold"/>
       <ListBox Grid.Row="1" ItemsSource="{Binding ModelFiles}" SelectedItem="{Binding SelectedModelPath}" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5">
         <ListBox.ItemTemplate>
@@ -15,37 +16,78 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-      <Button Grid.Row="2" Content="Generate Test ONNX" Command="{Binding AutoExportOnnxCommand}" Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+      <Button Grid.Row="2" Content="Delete Selected ONNX" Command="{Binding DeleteModelCommand}"
+              Background="#FEE2E2" Foreground="#B91C1C" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+      <Button Grid.Row="3" Content="Generate Test ONNX" Command="{Binding AutoExportOnnxCommand}" Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
     </Grid>
 
     <!-- Splitter 1 -->
     <GridSplitter Grid.Column="1" Width="6" Background="#E4E7EB" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{DynamicResource SplitterMargin}"/>
 
     <!-- 2. Images -->
-    <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto" Margin="{DynamicResource ColumnMargin}">
+    <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto,Auto" Margin="{DynamicResource ColumnMargin}">
       <TextBlock Grid.Row="0" Text="Select Target Image:" FontSize="14" FontWeight="Bold" Foreground="#1F8AD2" Margin="0,0,0,5"/>
-      <ListBox Grid.Row="1" ItemsSource="{Binding ImageFiles}" SelectedItem="{Binding SelectedImagePath}" 
+      <!-- Grid of thumbnails, virtualized by rows: only visible rows materialize,
+           so thumbnails decode lazily — folders with 10k+ images stay responsive.
+           File names live in tooltips to keep more images on screen. -->
+      <ListBox x:Name="ImageGridList" Grid.Row="1" ItemsSource="{Binding ImageRows}"
                BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5" Margin="0,0,0,4"
                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
-               PointerWheelChanged="OnImageListPointerWheelChanged">
-        <ListBox.ItemsPanel>
-          <ItemsPanelTemplate>
-            <WrapPanel Orientation="Horizontal"/>
-          </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
+               PointerWheelChanged="OnImageListPointerWheelChanged" SizeChanged="OnImageGridSizeChanged">
+        <ListBox.Styles>
+          <!-- Rows are layout-only: no selection visuals, selection lives on the tiles -->
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+          </Style>
+          <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+          </Style>
+          <Style Selector="Border.thumbTile">
+            <Setter Property="BorderBrush" Value="#E4E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+          </Style>
+          <Style Selector="Border.thumbTile.selectedTile">
+            <Setter Property="BorderBrush" Value="#1F8AD2"/>
+            <Setter Property="BorderThickness" Value="3"/>
+          </Style>
+        </ListBox.Styles>
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Border BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="4" Background="Black" 
-                    Width="{Binding ((vm:InferencePreviewViewModel)DataContext).ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                    Height="{Binding ((vm:InferencePreviewViewModel)DataContext).ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                    ClipToBounds="True" Margin="2">
-              <Image Source="{Binding Converter={StaticResource PathToImageConverter}}" Stretch="UniformToFill" ToolTip.Tip="{Binding Converter={StaticResource PathToFilenameConverter}}"/>
-            </Border>
+            <ItemsControl ItemsSource="{Binding}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="services:ThumbnailItem">
+                  <Border Classes="thumbTile" Classes.selectedTile="{Binding IsSelected}"
+                          CornerRadius="4" Background="Black" ClipToBounds="True" Margin="2" Cursor="Hand"
+                          Width="{Binding ((vm:InferencePreviewViewModel)DataContext).ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          Height="{Binding ((vm:InferencePreviewViewModel)DataContext).ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          Tapped="OnThumbnailTapped" DoubleTapped="OnImageDoubleTapped"
+                          ToolTip.Tip="{Binding FileName}">
+                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <Button Grid.Row="2" Content="Scan Images" Command="{Binding ScanImagesCommand}" Background="Green" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+      <!-- Confidence threshold (ultralytics default 0.25) -->
+      <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" Margin="0,0,0,4">
+        <TextBlock Grid.Column="0" Text="Conf ≥" VerticalAlignment="Center" FontSize="12"
+                   ToolTip.Tip="Minimum detection confidence shown in the preview"/>
+        <Slider Grid.Column="1" Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                Value="{Binding ConfThreshold}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="{Binding ConfThreshold, StringFormat='{}{0:0.00}'}"
+                   VerticalAlignment="Center" FontSize="12" MinWidth="32"/>
+      </Grid>
+
+      <Button Grid.Row="3" Content="Scan Images" Command="{Binding ScanImagesCommand}" Background="Green" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
     </Grid>
 
     <!-- Splitter 2 -->
@@ -64,7 +106,7 @@
 
       <!-- Lower: Outputs logs -->
       <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="0,10,0,0">
-        <TextBlock Grid.Row="0" Text="Inference Output Logs" FontSize="12" FontWeight="Bold" Foreground="Gray"/>
+        <TextBlock Grid.Row="0" Text="Inference Output Logs" FontSize="12" FontWeight="Bold" Classes="secondary"/>
         <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="5" Padding="8">
           <TextBlock Text="{Binding InferenceLog}" Foreground="Lime" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"/>
         </ScrollViewer>

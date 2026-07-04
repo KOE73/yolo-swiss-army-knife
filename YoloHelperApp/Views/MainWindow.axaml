@@ -6,49 +6,61 @@
         x:Class="YoloHelperApp.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="YOLO Swiss Army Knife - Training &amp; Export Assistant"
+        Title="{Binding WindowTitle}"
         Width="1200" Height="800" MinWidth="1000" MinHeight="600"
         Background="#F5F7FA">
 
-
-
   <Grid RowDefinitions="Auto,*">
-    <!-- Header/Title and Project Selector -->
-    <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E4E7EB" BorderThickness="0,0,0,1" Padding="15,10">
-      <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+    <!-- Header: app title + project controls -->
+    <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E4E7EB" BorderThickness="0,0,0,1" Padding="10,6">
+      <Grid ColumnDefinitions="*,Auto">
         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
           <!-- Small cute logo representation -->
           <Ellipse Width="12" Height="12" Fill="#1F8AD2" Margin="0,0,8,0"/>
           <TextBlock Text="YOLO Swiss Army Knife" FontSize="16" FontWeight="Bold" Foreground="#2A3B50" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <!-- Language Selector -->
-        <ComboBox Grid.Column="1" SelectedItem="{Binding Localization.CurrentLanguage}" VerticalAlignment="Center" Margin="0,0,20,0" Width="70">
-            <sys:String>RU</sys:String>
-            <sys:String>EN</sys:String>
-        </ComboBox>
-
-        <!-- Current working directory -->
-        <TextBlock Grid.Column="2" Text="Working Directory:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" Foreground="Gray"/>
-        <Grid Grid.Column="3" ColumnDefinitions="320,Auto" ColumnSpacing="6">
-          <TextBox Text="{Binding CurrentProjectFolder}" VerticalAlignment="Center" Height="30"/>
-          <Button Grid.Column="1" Content="Browse" Click="OnBrowseProjectFolderClick" VerticalAlignment="Center" Height="30"/>
-        </Grid>
+        <!-- Project controls -->
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <TextBlock Text="{Binding ProjectName}" FontWeight="SemiBold" Foreground="#1F8AD2"
+                     VerticalAlignment="Center" Margin="0,0,6,0"
+                     IsVisible="{Binding IsProjectOpen}"
+                     ToolTip.Tip="{Binding ProjectFilePath}"/>
+          <TextBlock Text="No project open" Foreground="#B04A4A" VerticalAlignment="Center" Margin="0,0,6,0"
+                     IsVisible="{Binding !IsProjectOpen}"/>
+          <Button Content="Open…" Click="OnOpenProjectClick"/>
+          <Button Content="Create…" Click="OnCreateProjectClick"/>
+          <DropDownButton Content="Recent" IsEnabled="{Binding RecentProjects.Count}">
+            <DropDownButton.Flyout>
+              <MenuFlyout ItemsSource="{Binding RecentProjects}">
+                <MenuFlyout.ItemContainerTheme>
+                  <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}"
+                                x:DataType="sys:String">
+                    <Setter Property="Header" Value="{Binding}"/>
+                    <Setter Property="Command" Value="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).OpenRecentProjectCommand}"/>
+                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                  </ControlTheme>
+                </MenuFlyout.ItemContainerTheme>
+              </MenuFlyout>
+            </DropDownButton.Flyout>
+          </DropDownButton>
+        </StackPanel>
       </Grid>
     </Border>
 
     <!-- Main Navigation TabControl -->
-    <TabControl Grid.Row="1" TabStripPlacement="Top" Padding="{DynamicResource MainTabPadding}">
-      <TabItem Header="Datasets">
+    <TabControl Grid.Row="1" TabStripPlacement="Top" Padding="{DynamicResource MainTabPadding}"
+                SelectedIndex="{Binding SelectedTabIndex}">
+      <TabItem Header="Datasets" IsEnabled="{Binding IsProjectOpen}">
         <views:DatasetView DataContext="{Binding DatasetVM}"/>
       </TabItem>
-      <TabItem Header="Augmentations">
+      <TabItem Header="Augmentations" IsEnabled="{Binding IsProjectOpen}">
         <views:AugmentationView DataContext="{Binding AugmentationVM}"/>
       </TabItem>
-      <TabItem Header="Trainings">
+      <TabItem Header="Trainings" IsEnabled="{Binding IsProjectOpen}">
         <views:SetupView DataContext="{Binding SetupVM}"/>
       </TabItem>
-      <TabItem Header="Analysis &amp; Models">
+      <TabItem Header="Analysis &amp; Models" IsEnabled="{Binding IsProjectOpen}">
         <views:AnalyzeView DataContext="{Binding AnalyzeVM}"/>
       </TabItem>
       <TabItem Header="System Doctor">

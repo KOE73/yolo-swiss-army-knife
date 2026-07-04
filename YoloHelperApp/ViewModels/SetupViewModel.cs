@@ -16,7 +16,7 @@ public partial class SetupViewModel : ViewModelBase
     private readonly YoloService _yoloService;
     private readonly AugmentationViewModel _augmentationVM;
 
-    [ObservableProperty] private string _projectName = "ImageText2RBox";
+    [ObservableProperty] private string _projectName = "YoloProject";
     [ObservableProperty] private string _runName = "run1";
     [ObservableProperty] private string _task = "detect";
     [ObservableProperty] private int _modelVersion = 11;
@@ -34,10 +34,10 @@ public partial class SetupViewModel : ViewModelBase
     [ObservableProperty] private string _datasetFolder = "";
 
     [ObservableProperty] private bool _useMlflow = false;
-    [ObservableProperty] private string _mlflowTrackingUri = "http://cis-ubuntu1.kombinat.ru:5000/";
-    [ObservableProperty] private string _mlflowS3EndpointUrl = "http://cis-ubuntu1.kombinat.ru:9100";
-    [ObservableProperty] private string _awsAccessKeyId = "zjJaR4SfoS2oqQVsfARv";
-    [ObservableProperty] private string _awsSecretAccessKey = "IzOeYnqXByBSTzCguUjHcFW8PjMB7HFA7TosdQo1";
+    [ObservableProperty] private string _mlflowTrackingUri = "";
+    [ObservableProperty] private string _mlflowS3EndpointUrl = "";
+    [ObservableProperty] private string _awsAccessKeyId = "";
+    [ObservableProperty] private string _awsSecretAccessKey = "";
 
     [ObservableProperty] private string _consoleLog = "System ready.\n";
     [ObservableProperty] private bool _isTraining = false;
@@ -45,6 +45,7 @@ public partial class SetupViewModel : ViewModelBase
     public ICommand SaveSettingsCommand { get; }
     public ICommand LoadSettingsCommand { get; }
     public ICommand StartTrainCommand { get; }
+    public ICommand StopTrainCommand { get; }
 
     public class ModelSizeOption
     {
@@ -52,9 +53,9 @@ public partial class SetupViewModel : ViewModelBase
         public string Code { get; set; } = "";
     }
 
-    public System.Collections.Generic.List<string> AvailableTasks { get; } = new() 
-    { 
-        "detect", "pose", "obb", "segment", "classify" 
+    public System.Collections.Generic.List<string> AvailableTasks { get; } = new()
+    {
+        "detect", "pose", "obb", "segment", "classify"
     };
 
     public System.Collections.Generic.List<ModelSizeOption> AvailableSizes { get; } = new()
@@ -71,27 +72,20 @@ public partial class SetupViewModel : ViewModelBase
         _projectService = projectService;
         _yoloService = yoloService;
         _augmentationVM = augmentationVM;
-        
+
         _modelSize = AvailableSizes[0];
 
         _yoloService.OnLogReceived += log => ConsoleLog += log + "\n";
+        _projectService.ProjectLoaded += ApplySettings;
 
         SaveSettingsCommand = new RelayCommand(SaveSettings);
-        LoadSettingsCommand = new RelayCommand(LoadSettings);
+        LoadSettingsCommand = new RelayCommand(ReloadSettings);
         StartTrainCommand = new AsyncRelayCommand(StartTrainAsync);
+        StopTrainCommand = new RelayCommand(() => _yoloService.StopCurrentProcess());
 
         if (AugmentationProfiles.Count > 0)
         {
             SelectedAugmentationProfile = AugmentationProfiles[0];
-        }
-    }
-
-    // Auto-load project settings when project folder changes (preserves UseMlflow etc.)
-    partial void OnDatasetFolderChanged(string value)
-    {
-        if (!string.IsNullOrWhiteSpace(value) && Directory.Exists(value))
-        {
-            LoadSettings();
         }
     }
 
@@ -104,65 +98,74 @@ public partial class SetupViewModel : ViewModelBase
         ModelName = YoloModelNamingHelper.GenerateModelName(ModelVersion, ModelSize?.Code ?? "n", Task);
     }
 
-    public ProjectSettings GetCurrentSettings()
+    /// <summary>Writes UI-editable fields back into the shared settings object (without touching other sections).</summary>
+    private void UpdateCurrentSettings()
     {
-        return new ProjectSettings
-        {
-            ProjectName = ProjectName,
-            RunName = RunName,
-            Task = Task,
-            ModelVersion = ModelVersion,
-            ModelSizeCode = ModelSize?.Code ?? "n",
-            ModelName = ModelName,
-            ImageSize = ImageSize,
-            Epochs = Epochs,
-            BatchSize = BatchSize,
-            Device = Device,
-            Workers = Workers,
-            AugmentationProfileName = SelectedAugmentationProfile?.ProfileName ?? "Default (Ultralytics)",
-            DatasetFolder = DatasetFolder,
-            UseMlflow = UseMlflow,
-            MlflowTrackingUri = MlflowTrackingUri,
-            MlflowS3EndpointUrl = MlflowS3EndpointUrl,
-            AwsAccessKeyId = AwsAccessKeyId,
-            AwsSecretAccessKey = AwsSecretAccessKey
-        };
+        var s = _projectService.Current;
+
+        s.Train.ProjectName = ProjectName;
+        s.Train.RunName = RunName;
+        s.Train.Task = Task;
+        s.Train.ModelVersion = ModelVersion;
+        s.Train.ModelSizeCode = ModelSize?.Code ?? "n";
+        s.Train.ModelName = ModelName;
+        s.Train.ImageSize = ImageSize;
+        s.Train.Epochs = Epochs;
+        s.Train.BatchSize = BatchSize;
+        s.Train.Device = Device;
+        s.Train.Workers = Workers;
+
+        s.Mlflow.Enabled = UseMlflow;
+        s.Mlflow.TrackingUri = MlflowTrackingUri;
+        s.Mlflow.S3EndpointUrl = MlflowS3EndpointUrl;
+        s.Mlflow.AwsAccessKeyId = AwsAccessKeyId;
+        s.Mlflow.AwsSecretAccessKey = AwsSecretAccessKey;
+
+        s.Augmentation.SelectedProfile = SelectedAugmentationProfile?.ProfileName ?? "Default (Ultralytics)";
     }
 
     private void SaveSettings()
     {
-        if (string.IsNullOrWhiteSpace(DatasetFolder)) return;
-        _projectService.SaveProject(DatasetFolder, GetCurrentSettings());
+        if (!_projectService.IsProjectOpen)
+        {
+            ConsoleLog += "[ERROR] Open or create a project first!\n";
+            return;
+        }
+        UpdateCurrentSettings();
+        _projectService.Save();
         ConsoleLog += "Settings saved successfully.\n";
     }
 
-    private void LoadSettings()
+    private void ReloadSettings()
     {
-        if (string.IsNullOrWhiteSpace(DatasetFolder) || !Directory.Exists(DatasetFolder)) return;
-        var s = _projectService.LoadProject(DatasetFolder);
-        ProjectName = s.ProjectName;
-        RunName = s.RunName;
-        Task = s.Task;
-        ModelVersion = s.ModelVersion;
-        
-        var match = AvailableSizes.Find(sz => sz.Code == s.ModelSizeCode);
+        _projectService.Reload(); // raises ProjectLoaded -> ApplySettings
+    }
+
+    private void ApplySettings(ProjectSettings s)
+    {
+        ProjectName = s.Train.ProjectName;
+        RunName = s.Train.RunName;
+        Task = s.Train.Task;
+        ModelVersion = s.Train.ModelVersion;
+
+        var match = AvailableSizes.Find(sz => sz.Code == s.Train.ModelSizeCode);
         if (match != null) ModelSize = match;
-        
-        ModelName = s.ModelName;
-        ImageSize = s.ImageSize;
-        Epochs = s.Epochs;
-        BatchSize = s.BatchSize;
-        Device = s.Device;
-        Workers = s.Workers;
 
-        var profileMatch = AugmentationProfiles.FirstOrDefault(p => p.ProfileName == s.AugmentationProfileName);
-        if (profileMatch != null) SelectedAugmentationProfile = profileMatch;
+        ModelName = s.Train.ModelName;
+        ImageSize = s.Train.ImageSize;
+        Epochs = s.Train.Epochs;
+        BatchSize = s.Train.BatchSize;
+        Device = s.Train.Device;
+        Workers = s.Train.Workers;
 
-        UseMlflow = s.UseMlflow;
-        MlflowTrackingUri = s.MlflowTrackingUri;
-        MlflowS3EndpointUrl = s.MlflowS3EndpointUrl;
-        AwsAccessKeyId = s.AwsAccessKeyId;
-        AwsSecretAccessKey = s.AwsSecretAccessKey;
+        var profileMatch = AugmentationProfiles.FirstOrDefault(p => p.ProfileName == s.Augmentation.SelectedProfile);
+        SelectedAugmentationProfile = profileMatch ?? AugmentationProfiles.FirstOrDefault();
+
+        UseMlflow = s.Mlflow.Enabled;
+        MlflowTrackingUri = s.Mlflow.TrackingUri;
+        MlflowS3EndpointUrl = s.Mlflow.S3EndpointUrl;
+        AwsAccessKeyId = s.Mlflow.AwsAccessKeyId;
+        AwsSecretAccessKey = s.Mlflow.AwsSecretAccessKey;
         ConsoleLog += "Settings loaded successfully.\n";
     }
 
@@ -178,7 +181,7 @@ public partial class SetupViewModel : ViewModelBase
         SaveSettings();
         try
         {
-            await _yoloService.RunTrainAsync(DatasetFolder, GetCurrentSettings(), SelectedAugmentationProfile);
+            await _yoloService.RunTrainAsync(DatasetFolder, _projectService.Current, SelectedAugmentationProfile);
         }
         catch (Exception ex)
         {

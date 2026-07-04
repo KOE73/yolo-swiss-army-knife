@@ -198,15 +198,17 @@ public class DatasetService
         Directory.CreateDirectory(trainLblDir);
         Directory.CreateDirectory(valLblDir);
 
-        // Collect all image-label pairs from both train and val into a single pool
+        // Collect all image-label pairs from both train and val into a single pool.
+        // Duplicate base names between train/val are excluded entirely: moving one of
+        // them would silently overwrite (and lose) the other.
         var allPairs = new List<(string ImagePath, string? LabelPath)>();
 
         CollectPairs(trainImgDir, trainLblDir, allPairs);
         CollectPairs(valImgDir, valLblDir, allPairs);
 
-        // Deduplicate by filename
         allPairs = allPairs
-            .GroupBy(p => Path.GetFileNameWithoutExtension(p.ImagePath))
+            .GroupBy(p => Path.GetFileNameWithoutExtension(p.ImagePath), StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() == 1)
             .Select(g => g.First())
             .ToList();
 
@@ -305,7 +307,8 @@ public class DatasetService
     private static void SafeMove(string source, string dest)
     {
         if (string.Equals(source, dest, StringComparison.OrdinalIgnoreCase)) return;
-        if (File.Exists(dest)) File.Delete(dest);
+        // Never delete an existing destination: skip instead of losing data
+        if (File.Exists(dest)) return;
         File.Move(source, dest);
     }
 }

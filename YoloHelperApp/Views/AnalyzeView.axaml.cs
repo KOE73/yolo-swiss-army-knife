@@ -387,10 +387,10 @@ public partial class AnalyzeView : UserControl
 
     private void OnImageDoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
     {
-        if (sender is Border border && border.DataContext is string imagePath && _viewModel?.SelectedRun != null)
+        if (sender is Control control && control.DataContext is Services.ThumbnailItem item && _viewModel?.SelectedRun != null)
         {
             var viewer = new ImageViewerWindow();
-            viewer.LoadImages(_viewModel.SelectedRun.Images, imagePath);
+            viewer.LoadImages(_viewModel.SelectedRun.Images.Select(i => i.Path).ToList(), item.Path);
             viewer.Show();
         }
     }

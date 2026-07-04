@@ -37,11 +37,11 @@ public partial class AnalyzeViewModel : ViewModelBase
         _inferenceService = inferenceService;
         _projectService = projectService;
 
-        ExportVM = new ExportViewModel(_yoloService, async () => {
+        ExportVM = new ExportViewModel(_yoloService, _projectService, async () => {
             await ScanRunsAsync(ProjectFolder);
             InferenceVM?.ReloadModels();
         });
-        InferenceVM = new InferencePreviewViewModel(_inferenceService, _yoloService, async () => {
+        InferenceVM = new InferencePreviewViewModel(_inferenceService, _yoloService, _projectService, async () => {
             await ScanRunsAsync(ProjectFolder);
             InferenceVM?.ReloadModels();
         });
@@ -71,32 +71,19 @@ public partial class AnalyzeViewModel : ViewModelBase
     public void RunPostExport(TrainRun run)
     {
         if (run == null) return;
-        
-        var settings = _projectService.LoadProject(ProjectFolder);
+
+        var settings = _projectService.Current;
         if (settings.PostExports == null || settings.PostExports.Count == 0)
         {
             HistoryLog = "[INFO] No PostExport commands configured in project.ysak.";
             return;
         }
 
-        // find onnx files (but ignore the Auto Inference ONNX ones unless we want to copy them too. We probably just want all onnx)
-        var onnxFiles = new System.Collections.Generic.List<string>();
-        string weightsPath = Path.Combine(run.Path, "weights");
-        string exportedModelsPath = Path.Combine(run.Path, "ExportedModels");
-        
-        if (Directory.Exists(weightsPath)) {
-            onnxFiles.AddRange(Directory.GetFiles(weightsPath, "*.onnx"));
-        }
-        if (Directory.Exists(exportedModelsPath)) {
-            onnxFiles.AddRange(Directory.GetFiles(exportedModelsPath, "*.onnx"));
-        }
-        onnxFiles.AddRange(Directory.GetFiles(run.Path, "*.onnx"));
-        
-        // Exclude the auto inference one for post exports, usually users just want their actual exports for production
-        var finalOnnxFiles = onnxFiles.Distinct()
-            .Where(f => !Path.GetFileName(f).StartsWith("best_op12_fp32", StringComparison.OrdinalIgnoreCase))
+        // Exclude the auto inference test model: users want their actual exports for production
+        var finalOnnxFiles = YoloModelNamingHelper.CollectOnnxFiles(run.Path)
+            .Where(f => !YoloModelNamingHelper.IsAutoTestModel(f))
             .ToList();
-            
+
         string onnxCsv = string.Join(",", finalOnnxFiles);
 
         foreach (var cmd in settings.PostExports)
@@ -158,18 +145,9 @@ public partial class AnalyzeViewModel : ViewModelBase
         
         try
         {
-            var profile = new ExportProfile
-            {
-                Name = "Auto Inference ONNX",
-                Format = "onnx",
-                Oplets = new System.Collections.Generic.List<int> { 12 },
-                BatchSizes = new System.Collections.Generic.List<string> { "1" },
-                Precisions = new System.Collections.Generic.List<string> { "FP32" },
-                ImgSizes = new System.Collections.Generic.List<int> { 640 },
-                Simplify = true,
-                InjectByteBGR = true
-            };
-            
+            var profile = YoloModelNamingHelper.CreateAutoTestProfile(
+                run.Task, run.ImgSize, ExportVM.IsByteBgrAvailable, _projectService.Current.Tools.OnnxToolsPath);
+
             await _yoloService.RunExportAsync(ProjectFolder, run.BestModelPath, profile);
             
             // Re-scan to detect the new ONNX file

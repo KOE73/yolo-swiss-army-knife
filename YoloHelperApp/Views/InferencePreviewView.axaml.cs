@@ -25,13 +25,28 @@ public partial class InferencePreviewView : UserControl
     {
     }
 
+    private void OnThumbnailTapped(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+        if (sender is Control control && control.DataContext is ThumbnailItem item &&
+            DataContext is InferencePreviewViewModel vm)
+        {
+            vm.SelectImage(item);
+        }
+    }
+
+    private void OnImageGridSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        (DataContext as InferencePreviewViewModel)?.SetViewportWidth(e.NewSize.Width);
+    }
+
     private void OnImageDoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
     {
         var vm = DataContext as InferencePreviewViewModel;
-        if (vm != null && !string.IsNullOrEmpty(vm.SelectedImagePath) && vm.ImageFiles.Count > 0)
+        string startPath = (sender as Control)?.DataContext is ThumbnailItem item ? item.Path : vm?.SelectedImagePath ?? "";
+        if (vm != null && !string.IsNullOrEmpty(startPath) && vm.ImageFiles.Count > 0)
         {
             var viewer = new ImageViewerWindow();
-            viewer.LoadImages(vm.ImageFiles.ToList(), vm.SelectedImagePath);
+            viewer.LoadImages(vm.ImageFiles.Select(i => i.Path).ToList(), startPath);
             viewer.Show();
         }
     }

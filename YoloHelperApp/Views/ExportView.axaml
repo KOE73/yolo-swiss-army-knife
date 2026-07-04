@@ -3,10 +3,10 @@
              xmlns:vm="using:YoloHelperApp.ViewModels"
              x:Class="YoloHelperApp.Views.ExportView"
              x:DataType="vm:ExportViewModel">
-  <Grid ColumnDefinitions="320,6,*" Margin="0">
+  <Grid ColumnDefinitions="320,6,*" Margin="{DynamicResource PageMargin}">
     <!-- Left Column: Profiles List -->
     <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="6">
-      <TextBlock Grid.Row="0" Text="Export Profiles" FontSize="16" FontWeight="Bold" Foreground="#1F8AD2" Margin="4,0,0,0"/>
+      <TextBlock Grid.Row="0" Text="Export Profiles" Classes="header" Foreground="{DynamicResource AccentBrush}" Margin="4,0,0,0"/>
       
       <ListBox Grid.Row="1" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="5">
         <ListBox.ItemTemplate>
@@ -15,7 +15,7 @@
               <CheckBox Grid.Column="0" IsChecked="{Binding IsActive}" Margin="0,0,8,0"/>
               <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding Summarize}" FontSize="11" Foreground="Gray"/>
+                <TextBlock Text="{Binding Summarize}" FontSize="11" Classes="secondary"/>
               </StackPanel>
             </Grid>
           </DataTemplate>
@@ -34,7 +34,7 @@
     <!-- Right Column: Profile Editor & Export Actions -->
     <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Margin="{DynamicResource ColumnMargin}" Padding="0,0,10,0">
       <StackPanel Spacing="5">
-        <TextBlock Text="Edit Selected Profile" FontSize="16" FontWeight="Bold" Foreground="#1F8AD2"/>
+        <TextBlock Text="Edit Selected Profile" Classes="header" Foreground="{DynamicResource AccentBrush}"/>
         
         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="5">
           <TextBlock Grid.Row="0" Grid.Column="0" Text="Profile Name:" VerticalAlignment="Center"/>
@@ -70,7 +70,7 @@
           <TextBlock Grid.Row="3" Grid.Column="0" Text="Inject ByteBGR preprocessing node:" VerticalAlignment="Center"/>
           <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="5">
              <ToggleSwitch IsChecked="{Binding InjectByteBgr}" IsEnabled="{Binding IsByteBgrAvailable}" OffContent="No" OnContent="Yes"/>
-             <TextBlock Text="Uses your NeuroModFlowNet.ONNX.Tools inject utility" Foreground="Gray" FontSize="11" VerticalAlignment="Center"/>
+             <TextBlock Text="Uses your NeuroModFlowNet.ONNX.Tools inject utility" Classes="desc" VerticalAlignment="Center"/>
           </StackPanel>
         </Grid>
 
@@ -83,11 +83,11 @@
           <Button Grid.Column="1" Content="Browse best.pt" Click="OnBrowseBestPtClick" Background="#1F8AD2" Foreground="White"/>
         </Grid>
 
-        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,5,0,0">
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,5,0,0">
           <Button Grid.Column="0" Content="Export Current Profile" Command="{Binding StartBatchExportCommand}"
-                  Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="40" CornerRadius="5"/>
+                  Background="#1F8AD2" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" CornerRadius="4"/>
           <Button Grid.Column="1" Content="Export All Profiles" Command="{Binding ExportAllProfilesCommand}"
-                  Background="#9333EA" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="40" CornerRadius="5"/>
+                  Background="#9333EA" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" CornerRadius="4"/>
         </Grid>
 
         <!-- Console Log -->

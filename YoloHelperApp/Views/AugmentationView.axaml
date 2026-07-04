@@ -4,11 +4,11 @@
              x:Class="YoloHelperApp.Views.AugmentationView"
              x:DataType="vm:AugmentationViewModel">
   
-  <Grid ColumnDefinitions="250,*" Margin="15" ColumnSpacing="15">
+  <Grid ColumnDefinitions="220,*" Margin="{DynamicResource PageMargin}" ColumnSpacing="8">
     <!-- Left Panel: Profile List -->
-    <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="10">
+    <Border Grid.Column="0" Classes="card" Background="#FFFFFF">
       <Grid RowDefinitions="Auto,*,Auto,Auto">
-        <TextBlock Grid.Row="0" Text="Augmentation Profiles" FontWeight="Bold" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="Augmentation Profiles" FontWeight="Bold" Margin="0,0,0,6"/>
         
         <ListBox Grid.Row="1" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" Background="Transparent" BorderThickness="0">
           <ListBox.ItemTemplate>
@@ -28,10 +28,10 @@
     </Border>
 
     <!-- Right Panel: Profile Editor -->
-    <Border Grid.Column="1" Background="#FFFFFF" BorderBrush="#E4E7EB" BorderThickness="1" CornerRadius="8" Padding="15">
-      <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,15,0">
+    <Border Grid.Column="1" Classes="card" Background="#FFFFFF">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
         <StackPanel Spacing="5" IsEnabled="{Binding SelectedProfile, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <TextBlock Text="Edit Augmentation Profile" FontSize="18" FontWeight="Bold" Foreground="#1F8AD2" />
+          <TextBlock Text="Edit Augmentation Profile" Classes="header" Foreground="{DynamicResource AccentBrush}"/>
           
           <Grid ColumnDefinitions="Auto,*" RowSpacing="2" ColumnSpacing="5" Margin="0,0,0,5">
             <TextBlock Grid.Column="0" Text="Profile Name:" VerticalAlignment="Center"/>
@@ -39,83 +39,83 @@
           </Grid>
 
           <Separator Height="1" Background="#D0D7DF" Margin="0,2"/>
-          <TextBlock Text="Image Filters" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Text="Image Filters" Classes="header"/>
           
           <Grid ColumnDefinitions="180,150,*" RowDefinitions="Auto,Auto" RowSpacing="2" ColumnSpacing="5">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Min Width (px):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding SelectedProfile.MinWidth}" Minimum="0" Increment="10"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_min_width_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_min_width_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Height (px):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedProfile.MinHeight}" Minimum="0" Increment="10"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_min_height_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_min_height_desc]}" Classes="desc" VerticalAlignment="Center"/>
           </Grid>
 
           <Separator Height="1" Background="#D0D7DF" Margin="0,2"/>
-          <TextBlock Text="Color Augmentations (HSV)" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Text="Color Augmentations (HSV)" Classes="header"/>
 
           <Grid ColumnDefinitions="180,150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="5">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Hue (hsv_h):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding SelectedProfile.HsvH}" Minimum="0.0" Maximum="1.0" Increment="0.01" FormatString="0.000"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_hsv_h_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_hsv_h_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Saturation (hsv_s):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedProfile.HsvS}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_hsv_s_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_hsv_s_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Value (hsv_v):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding SelectedProfile.HsvV}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_hsv_v_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_hsv_v_desc]}" Classes="desc" VerticalAlignment="Center"/>
           </Grid>
 
           <Separator Height="1" Background="#D0D7DF" Margin="0,2"/>
-          <TextBlock Text="Spatial Augmentations" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Text="Spatial Augmentations" Classes="header"/>
 
           <Grid ColumnDefinitions="180,150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="5">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Rotation (degrees):" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding SelectedProfile.Degrees}" Minimum="-180.0" Maximum="180.0" Increment="1.0" FormatString="0.0"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_degrees_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_degrees_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Translation:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedProfile.Translate}" Minimum="0.0" Maximum="1.0" Increment="0.05" FormatString="0.00"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_translate_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_translate_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Scale:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding SelectedProfile.Scale}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_scale_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_scale_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Shear:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding SelectedProfile.Shear}" Minimum="-180.0" Maximum="180.0" Increment="1.0" FormatString="0.0"/>
-            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Localization[Aug_shear_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Localization[Aug_shear_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Perspective:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding SelectedProfile.Perspective}" Minimum="0.0" Maximum="0.001" Increment="0.0001" FormatString="0.0000"/>
-            <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Localization[Aug_perspective_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Localization[Aug_perspective_desc]}" Classes="desc" VerticalAlignment="Center"/>
           </Grid>
 
           <Separator Height="1" Background="#D0D7DF" Margin="0,2"/>
-          <TextBlock Text="Composition &amp; Flips" FontSize="16" FontWeight="SemiBold" />
+          <TextBlock Text="Composition &amp; Flips" Classes="header"/>
 
           <Grid ColumnDefinitions="180,150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="5">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Flip Up-Down:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding SelectedProfile.Flipud}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_flipud_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Localization[Aug_flipud_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Flip Left-Right:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding SelectedProfile.Fliplr}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_fliplr_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Localization[Aug_fliplr_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Mosaic:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding SelectedProfile.Mosaic}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_mosaic_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Localization[Aug_mosaic_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="3" Grid.Column="0" Text="MixUp:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding SelectedProfile.Mixup}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Localization[Aug_mixup_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Localization[Aug_mixup_desc]}" Classes="desc" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Copy-Paste:" VerticalAlignment="Center"/>
             <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding SelectedProfile.CopyPaste}" Minimum="0.0" Maximum="1.0" Increment="0.1" FormatString="0.0"/>
-            <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Localization[Aug_copy_paste_desc]}" Foreground="Gray" TextWrapping="Wrap" FontSize="11" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Localization[Aug_copy_paste_desc]}" Classes="desc" VerticalAlignment="Center"/>
           </Grid>
         </StackPanel>
       </ScrollViewer>
